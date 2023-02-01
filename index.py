@@ -24,7 +24,7 @@ async def ping(ctx):
     latency = (end - start) * 1000
     await ctx.send(f"Latencia: {latency:.2f} ms")
     
-# Borra todos los mensajes    
+# Borra todos los mensajes, dependiendo del limite que le pongas  
 @bot.command(name='clearall', help='Borra todos los mensajes')
 @commands.has_permissions(administrator=True)
 async def clearall(ctx):
@@ -91,7 +91,7 @@ async def mute(ctx, member : discord.Member, *, reason=None):
     await member.send(f'Has sido muteado permanentemente por: {reason}')
     await ctx.message.delete()
     
-# Comando para dar temporalmente a un usuario
+# Comando para dar ban temporalmente a un usuario
 @bot.command(name='tempban', help='Banear a un usuario temporalmente')
 @commands.has_permissions(ban_members=True)
 async def tempban(ctx, member : discord.Member, duration: int, *, reason=None):
@@ -179,7 +179,7 @@ async def on_message(message):
                         warnings[user.id] = 1
     await bot.process_commands(message)
     
-# Youtube
+# Sistema para reproducir cancion desde youtube usando el comando !play 
 loop = asyncio.get_event_loop()
 queue = asyncio.Queue()
 current_song = None
