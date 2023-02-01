@@ -261,7 +261,7 @@ async def play_next_song():
         embed = discord.Embed(title='Reproduciendo', description=current_song["title"], color=random_color())
         await ctx_global.send(embed=embed)
 
-# Comandos para ontrolar el reproductor de musica (Youtube):
+# Comandos para controlar el reproductor de musica (Youtube):
 
 # Pausar
 @bot.command(name='pause')
@@ -418,4 +418,5 @@ async def leave(ctx):
 async def on_ready():
     print('Now, the bot is connected.')
 
+# Token de su bot
 bot.run("")
