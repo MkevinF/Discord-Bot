@@ -246,6 +246,7 @@ async def play(ctx, *, url):
             embed = discord.Embed(title='Reproduciendo', description=current_song["title"], color=random_color())
             await ctx.send(embed=embed)
 
+
 async def play_next_song():
     global queue, current_song, vc_global, ctx_global, search_result_global, color
     if queue.qsize() > 0:
@@ -260,6 +261,8 @@ async def play_next_song():
         vc_global.source.volume = 1.0
         embed = discord.Embed(title='Reproduciendo', description=current_song["title"], color=random_color())
         await ctx_global.send(embed=embed)
+
+
 
 # Comandos para controlar el reproductor de musica (Youtube):
 
@@ -278,6 +281,8 @@ async def pause(ctx):
         embed = discord.Embed(description='No hay canción reproduciendose.', color=discord.Color.gold())
         await ctx.send(embed=embed)
 
+
+
 # Resumir
 @bot.command(name='resume')
 async def resume(ctx):
@@ -293,9 +298,12 @@ async def resume(ctx):
         embed = discord.Embed(description='No hay canción en pausa.', color=discord.Color.gold())
         await ctx.send(embed=embed)
 
+
+
 # Saltar canción
 @bot.command(name='skip')
 async def skip(ctx):
+    global song_position
     if ctx.author.voice is None or ctx.author.voice.channel is None:
         embed = discord.Embed(description='No estas en un canal de voz.', color=discord.Color.gold())
         return await ctx.send(embed=embed)
@@ -314,6 +322,10 @@ async def skip(ctx):
         else:
             if str(reaction.emoji) == '✅':
                 vc.stop()
+                song_position -= 1
+                if song_position == 0:
+                    song_position += 1
+                    
                 embed = discord.Embed(description='Saltando la canción.', color=discord.Color.gold())
                 await ctx.send(embed=embed)
             elif str(reaction.emoji) == '❌':
@@ -323,33 +335,45 @@ async def skip(ctx):
         embed = discord.Embed(description='No hay canción reproduciendose.', color=discord.Color.gold())
         await ctx.send(embed=embed)
 
+
+
 # Parar
 @bot.command(name='stop')
 async def stop(ctx):
+    global queue, search_result_global, song_position
     if ctx.author.voice is None or ctx.author.voice.channel is None:
-        embed = discord.Embed(description='No estas en un canal de voz.', color=discord.Color.gold())
+        embed = discord.Embed(description='No estás en un canal de voz.', color=discord.Color.gold())
         return await ctx.send(embed=embed)
     vc = ctx.guild.voice_client
     if vc and vc.is_connected():
-        msg = await ctx.send("¿Desea detener la canción? 🤖")
-        await msg.add_reaction("✅")
-        await msg.add_reaction("❌")
-        def check(reaction, user):
-            return user == ctx.author and str(reaction.emoji) in ["✅","❌"]
-        try:
-            reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            await ctx.send("Tiempo de espera agotado.")
-        else:
-            if str(reaction.emoji) == "✅":
-                vc.stop()
-                embed = discord.Embed(description='Deteniendo la canción.', color=discord.Color.gold())
-                await ctx.send(embed=embed)
+        if vc.is_playing():
+            msg = await ctx.send("¿Desea detener la canción? 🤖")
+            await msg.add_reaction("✅")
+            await msg.add_reaction("❌")
+            def check(reaction, user):
+                return user == ctx.author and str(reaction.emoji) in ["✅","❌"]
+            try:
+                reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+            except asyncio.TimeoutError:
+                await ctx.send("Tiempo de espera agotado.")
             else:
-                await ctx.send("Cancelado.")
+                if str(reaction.emoji) == "✅":
+                    vc.stop()
+                    queue = asyncio.Queue()
+                    search_result_global = None
+                    song_position = 1
+                    embed = discord.Embed(description='Deteniendo...', color=discord.Color.gold())
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send("Cancelado.")
+        else:
+            embed = discord.Embed(description='No hay ninguna canción reproduciéndose para detener.', color=discord.Color.gold())
+            await ctx.send(embed=embed)
     else:
         embed = discord.Embed(description='No estoy conectado a un canal de voz.', color=discord.Color.gold())
         await ctx.send(embed=embed)
+      
+      
       
  # Borrar cola o playlist     
 @bot.command()
@@ -381,6 +405,8 @@ async def clearqueue(ctx):
             await ctx.send(embed=embed)
     elif str(reaction.emoji) == '👎':
         await ctx.send('Acción cancelada.')
+        
+      
       
 # Desconectar al bot del canal de voz
 @bot.command()
@@ -412,6 +438,15 @@ async def leave(ctx):
     elif str(reaction.emoji) == '❌':
         embed = discord.Embed(description='Cancelado.', color=discord.Color.gold())
         await ctx.send(embed=embed)
+
+
+
+# Tarea para que se reestablezca la posicion de la cola al desconectar al bot sin comandos.
+@bot.event
+async def on_voice_state_update(member, before, after):
+    global song_position
+    if before.channel is not None and after.channel is None:
+        song_position = 1
 
 
 @bot.event
