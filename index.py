@@ -1,6 +1,6 @@
 import discord
 import asyncio
-import youtube_dl
+import yt_dlp as youtube_dl
 from discord.ext import commands
 from queue import Queue
 from discord import Embed
@@ -220,10 +220,14 @@ async def play(ctx, *, url):
         }]
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        if 'artist:' in url:
-            search_result_global = ydl.extract_info(f"ytsearch:{url}", download=False)
-        else:
-            search_result_global = ydl.extract_info(f"ytsearch1:{url}", download=False)
+        try:
+            if 'artist:' in url:
+                search_result_global = ydl.extract_info(f"ytsearch:{url}", download=False)
+            else:
+                search_result_global = ydl.extract_info(f"ytsearch1:{url}", download=False)
+        except youtube_dl.utils.DownloadError as e:
+            await ctx.send("Lo siento, no pude obtener la información de la canción.")
+            return
         video_url = search_result_global['entries'][0]['url']
         
         if vc.is_paused():
