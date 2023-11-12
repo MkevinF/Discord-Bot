@@ -25,6 +25,6 @@ async def on_ready():
 
 
 # Token de su bot
-bot.run("MTA2MzQ4NzYwNjY4NTQ0MjExOQ.GibUuY.At15_v8J-HvDfCC0iW2prX-kxFYJCnKk65CLQ4")
+bot.run()
 
 
