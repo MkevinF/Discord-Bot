@@ -1,7 +1,9 @@
 from Helper import *
 
+
+
 # Pausar -- pause
-@bot.command(name='pause')
+@bot.command(name='pause', help='Pausa la canción actual en el canal de voz: +pause')
 async def pause(ctx):
     if ctx.author.voice is None or ctx.author.voice.channel is None:
         embed = discord.Embed(description='No estas en un canal de voz.', color=discord.Color.gold())
@@ -18,7 +20,7 @@ async def pause(ctx):
 
 
 # Resumir -- +resume
-@bot.command(name='resume')
+@bot.command(name='resume', help='Reanuda la reproducción de la canción pausada: +resume')
 async def resume(ctx):
     if ctx.author.voice is None or ctx.author.voice.channel is None:
         embed = discord.Embed(description='No estas en un canal de voz.', color=discord.Color.gold())
@@ -35,7 +37,7 @@ async def resume(ctx):
 
 
 # Saltar canción confirmando la accion con el cotejo. +skip
-@bot.command(name='skip')
+@bot.command(name='skip', help='Salta a la siguiente canción en la cola de reproducción: +skip')
 async def skip(ctx):
     global song_position
     if ctx.author.voice is None or ctx.author.voice.channel is None:
@@ -72,7 +74,7 @@ async def skip(ctx):
 
 
 # Parar confirmando la accion con el cotejo. +stop
-@bot.command(name='stop')
+@bot.command(name='stop', help='Detiene la canción actual: +stop')
 async def stop(ctx):
     global queue, search_result_global, song_position
     if ctx.author.voice is None or ctx.author.voice.channel is None:
@@ -110,7 +112,7 @@ async def stop(ctx):
       
       
  # Borrar cola o playlist confirmando la accion con el cotejo. +clearqueue
-@bot.command()
+@bot.command(name='clearqueue', help='Vacia la cola de reproducción: +clearqueue')
 async def clearqueue(ctx):
     global queue, search_result_global, song_position
 
@@ -152,7 +154,7 @@ async def clearqueue(ctx):
       
       
 # Desconectar al bot del canal de voz confirmando la accion con el cotejo. +leave
-@bot.command()
+@bot.command(name='leave', help='Desconecta al bot del canal de voz actual: +leave')
 async def leave(ctx):
     global song_position
     if ctx.author.voice is not None:
@@ -184,3 +186,15 @@ async def leave(ctx):
 
 
 
+@bot.command(name='help')
+async def custom_help(ctx):
+    embed = discord.Embed(title='Comandos del Bot', color=0x42F56C)
+
+    # Añade el comando 'play' primero
+    embed.add_field(name=f"**play**", value=bot.get_command('play').help, inline=False)
+
+    for command in bot.commands:
+        if command.name not in ('play', 'help'):
+            embed.add_field(name=f"**{command.name}**", value=command.help, inline=False)
+
+    await ctx.send(embed=embed)
