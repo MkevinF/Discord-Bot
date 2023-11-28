@@ -27,13 +27,8 @@ class MusicView(discord.ui.View):
         self.add_item(self.stop_button)
         self.add_item(self.queue_button)
         self.add_item(self.skip_button)
-        self.is_paused = False
-
+        self.is_paused = False       
         
-    def update_current_song(self, current_song):
-        self.current_song = current_song    
-       
-
     
     #Botones para controlar las canciones.
 
