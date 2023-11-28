@@ -29,6 +29,6 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 
-bot = commands.Bot(command_prefix='+', description='Multi Purpose', intents=intents)
+bot = commands.Bot(command_prefix='+', description='Multi Purpose', intents=intents, help_command=None)
 
     
