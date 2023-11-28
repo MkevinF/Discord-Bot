@@ -5,7 +5,7 @@ import re
 
 # Mostrar la canción actual y la siguiente canción. SNS = Show next song or mostrar siguiente canción.
 
-@bot.command()
+@bot.command(name='sns', help='Muestra la canción actual y la siguiente: +sns')
 async def sns(ctx):
     global queue, current_song
 
@@ -20,21 +20,19 @@ async def sns(ctx):
 
     embed = discord.Embed(title="💿 Ahora suena", color=random_color())
 
-    # Muestra la información de la canción actual
     if current_song:
-            embed.set_thumbnail(url=current_song["thumbnail"])
-            title = current_song.get('title', 'No hay ninguna canción reproduciéndose.')
-            url = current_song.get('webpage_url', '')
-            if url:
-                embed.add_field(name="🔊 Canción Actual 🔊", value=f"[{title[:100]}]({url[:100]})", inline=False)
-            else:
-                embed.add_field(name="🔊 Canción Actual 🔊", value=title, inline=False)
+        embed.set_thumbnail(url=current_song["thumbnail"])
+        title = current_song.get('title', 'No hay ninguna canción reproduciéndose.')
+        url = current_song.get('webpage_url', '')
+        if url:
+            embed.add_field(name="🔊 Canción Actual 🔊", value=f"[{title[:100]}]({url[:100]})", inline=False)
+        else:
+            embed.add_field(name="🔊 Canción Actual 🔊", value=title, inline=False)
     else:
         embed.add_field(name="🔊 Canción Actual 🔊", value="No hay ninguna canción reproduciéndose.", inline=False)
 
-    # Muestra la siguiente canción en la cola
-    if not queue.empty() and len(queue_list) > 1:
-        next_song = queue_list[1]['info']
+    if not queue.empty() and len(queue_list) > 0:  # Cambiado de 1 a 0 aquí
+        next_song = queue_list[0]['info']  # Cambiado de 1 a 0 aquí
         embed.add_field(name="🎶 Siguiente Canción 🎶", value=f"{next_song['title']}", inline=False)
     else:
         embed.add_field(name="🎶 No hay siguiente canción. ¡Agrega una! 🎶", value=f"", inline=False)
@@ -65,6 +63,7 @@ async def sns(ctx):
 
 
 
+
 # Contenedor de mensajes generados por el comando +play
 music_messages = []
 
@@ -74,7 +73,7 @@ music_messages = []
 
 
 # Sistema para reproducir cancion desde youtube usando el comando +play 
-@bot.command()
+@bot.command(name='play', help='Reproducir canciones mediante link o nombre de la canción y artista: +play')
 async def play(ctx, *, url):
     global queue, current_song, vc_global, ctx_global, search_result_global, song_position, music_messages
     vc_global = ctx.voice_client
