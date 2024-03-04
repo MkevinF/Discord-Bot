@@ -105,11 +105,13 @@ class MusicView(discord.ui.View):
         else:
             embed.add_field(name="🔊 Canción Actual 🔊", value="No hay ninguna canción reproduciéndose.", inline=False)
 
-        if not queue.empty():
-            next_song = queue_list[0]
-            embed.add_field(name="🎶 Siguiente Canción 🎶", value=f"{next_song['info']['title']}", inline=False)
+        if not queue.empty() and len(queue_list) > 0:  # Cambiado de 1 a 0 aquí
+            next_song = queue_list[0]['info']  # Cambiado de 1 a 0 aquí
+            embed.add_field(name="🎶 Siguiente Canción 🎶", value=f"{next_song['title']}", inline=False)
+            
         else:
             embed.add_field(name="🎶 No hay siguiente canción. ¡Agrega una! 🎶", value=f"", inline=False)
+            embed.set_footer(text="Usa +skip para saltar la canción")
 
         embed.set_footer(text="Usa +skip para saltar la canción")
         
