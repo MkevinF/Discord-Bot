@@ -21,6 +21,6 @@ Una vez descargado, necesita poner su carpeta aquí:
 
 También utilizar este comando en su editor de código fuente para instalar las dependencias:
 
-`pip install discord.py yt-dlp aiohttp certifi chardet idna multidict yarl`
+`pip install discord.py yt-dlp aiohttp certifi chardet idna multidict yarl PyNaCl`
 
 Tambien puedes ver todos los comandos y su uso en el codigo fuente o mediante el comando +help dentro de tu servidor de discord.
