@@ -1,7 +1,6 @@
 from Helper import *
 
 
-
 # Pausar -- pause
 @bot.command(name='pause', help='Pausa la canción actual en el canal de voz: +pause')
 async def pause(ctx):
@@ -33,6 +32,62 @@ async def resume(ctx):
     else:
         embed = discord.Embed(description='No hay canción en pausa.', color=discord.Color.gold())
         await ctx.send(embed=embed)
+
+
+
+# Mostrar la canción actual y la siguiente canción. SNS = Show next song or mostrar siguiente canción.
+@bot.command(name='sns', help='Muestra la canción actual y la siguiente: +sns')
+async def sns(ctx):
+    global queue, current_song
+
+    if ctx.author.voice is not None:
+        vc = ctx.author.voice.channel
+    else:
+        embed = discord.Embed(description='No estás en un canal de voz.', color=discord.Color.gold())
+        await ctx.send(embed=embed)
+        return
+
+    queue_list = list(queue._queue)
+
+    embed = discord.Embed(title="💿 Ahora suena", color=random_color())
+
+    if current_song:
+        embed.set_thumbnail(url=current_song["thumbnail"])
+        title = current_song.get('title', 'No hay ninguna canción reproduciéndose.')
+        url = current_song.get('webpage_url', '')
+        if url:
+            embed.add_field(name="🔊 Canción Actual 🔊", value=f"[{title[:100]}]({url[:100]})", inline=False)
+        else:
+            embed.add_field(name="🔊 Canción Actual 🔊", value=title, inline=False)
+    else:
+        embed.add_field(name="🔊 Canción Actual 🔊", value="No hay ninguna canción reproduciéndose.", inline=False)
+
+    if not queue.empty() and len(queue_list) > 0:  # Cambiado de 1 a 0 aquí
+        next_song = queue_list[0]['info']  # Cambiado de 1 a 0 aquí
+        embed.add_field(name="🎶 Siguiente Canción 🎶", value=f"{next_song['title']}", inline=False)
+    else:
+        embed.add_field(name="🎶 No hay siguiente canción. ¡Agrega una! 🎶", value=f"", inline=False)
+
+    embed.set_footer(text="Usa +skip para saltar la canción")
+
+    msg = await ctx.send(embed=embed)
+
+    await msg.add_reaction("❌")
+
+    def check(reaction, user):
+        return (
+            user == ctx.author
+            and reaction.message.id == msg.id
+            and str(reaction.emoji) == "❌"
+        )
+
+    try:
+        reaction, user = await bot.wait_for("reaction_add", check=check, timeout=60.0)
+    except asyncio.TimeoutError:
+        pass
+    else:
+        if str(reaction.emoji) == "❌":
+            await msg.delete()
 
 
 
